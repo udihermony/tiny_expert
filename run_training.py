@@ -205,6 +205,9 @@ def main():
         # Load configuration
         config = TrainingConfig()
         
+        # Update data path for training
+        data_path = config.data_path if hasattr(config, 'data_path') else './data/processed/train.jsonl'
+        
         # Create and run training pipeline
         runner = TrainingRunner(config)
         success = runner.run()

@@ -29,45 +29,45 @@ class TrainingConfig:
         self.config = {
             # Paths
             "model_path": "./models/qwen3-1.7b-mlx",
-            "data_path": "./data/processed/farming_texts.jsonl",
+            "data_path": "./data/processed/train.jsonl",
             "output_dir": "./farming-llm-output",
             
-            # Training parameters
+            # Training parameters - Ultra conservative settings
             "num_epochs": 3,
-            "batch_size": 4,
-            "learning_rate": 5e-5,
-            "warmup_steps": 100,
-            "max_length": 2048,
+            "batch_size": 1,
+            "learning_rate": 1e-7,  # Even lower learning rate
+            "warmup_steps": 200,  # Longer warmup
+            "max_length": 256,  # Shorter sequences
             "gradient_checkpointing": True,
-            "gradient_accumulation_steps": 4,
+            "gradient_accumulation_steps": 16,  # More accumulation steps
             
-            # Optimization parameters
-            "weight_decay": 0.01,
+            # Optimization parameters - Conservative settings
+            "weight_decay": 0.001,  # Reduced weight decay
             "adam_beta1": 0.9,
             "adam_beta2": 0.999,
-            "adam_epsilon": 1e-8,
-            "max_grad_norm": 1.0,
+            "adam_epsilon": 1e-6,  # Increased epsilon
+            "max_grad_norm": 0.1,  # Stronger gradient clipping
             
             # Saving and evaluation parameters
-            "save_steps": 500,
-            "eval_steps": 500,
-            "logging_steps": 100,
-            "save_total_limit": 3,  # Maximum number of checkpoints to keep
+            "save_steps": 50,
+            "eval_steps": 50,
+            "logging_steps": 5,
+            "save_total_limit": 3,
             
             # Model parameters
-            "block_size": 2048,
-            "vocab_size": 151936,  # Qwen3 vocab size
+            "block_size": 256,  # Shorter block size
+            "vocab_size": 151936,
             
-            # Mixed precision training
-            "fp16": True,
-            "fp16_opt_level": "O1",
+            # Mixed precision training - Disabled
+            "fp16": False,
+            "fp16_opt_level": "O0",
             
             # Early stopping
-            "early_stopping_patience": 3,
-            "early_stopping_threshold": 0.01,
+            "early_stopping_patience": 5,
+            "early_stopping_threshold": 0.001,
             
             # Data processing
-            "num_workers": 4,
+            "num_workers": 1,
             "prefetch_factor": 2,
             "pin_memory": True,
             
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # Load and modify configuration
     custom_config = TrainingConfig({
         "num_epochs": 5,
-        "batch_size": 8,
-        "learning_rate": 1e-5
+        "batch_size": 1,
+        "learning_rate": 1e-7
     })
     custom_config.save() 

@@ -1,7 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
+import mlx.optim as optim
 from mlx_lm import load, stream_generate
-from mlx_lm.tuners import lora
 import json
 from datasets import load_dataset
 import numpy as np
@@ -63,7 +63,7 @@ class FarmingModelTrainer:
     def prepare_data(self):
         """Prepare and tokenize the dataset."""
         def tokenize_function(examples):
-            return self.tokenizer(
+            return self.tokenizer._tokenizer.batch_encode_plus(
                 examples["text"],
                 truncation=True,
                 padding="max_length",
@@ -82,7 +82,7 @@ class FarmingModelTrainer:
     
     def create_optimizer(self):
         """Create and configure the optimizer."""
-        return mx.optim.AdamW(
+        return optim.AdamW(
             learning_rate=self.learning_rate,
             weight_decay=0.01,
             beta1=0.9,
@@ -120,8 +120,8 @@ class FarmingModelTrainer:
     
     def compute_loss(self, input_ids, labels):
         """Compute the training loss."""
-        outputs = self.model(input_ids)
-        logits = outputs.logits
+        logits = self.model(input_ids)
+        logger.info(f"Logits shape: {logits.shape}, Labels shape: {labels.shape}")
         
         loss = mx.nn.losses.cross_entropy(
             logits.reshape(-1, self.model.vocab_size),
@@ -159,6 +159,8 @@ class FarmingModelTrainer:
                 loss.backward()
                 
                 if (total_steps + 1) % self.gradient_accumulation_steps == 0:
+                    # Clip gradients to prevent exploding gradients
+                    mx.clip_grad_norm(self.model.parameters(), max_norm=1.0)
                     optimizer.update(self.model)
                     self.model.zero_grad()
                 

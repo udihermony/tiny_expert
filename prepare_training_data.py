@@ -60,7 +60,7 @@ def save_jsonl(data: List[Dict], output_path: str):
             f.write(json.dumps({"text": item["text"]}, ensure_ascii=False) + '\n')
     logger.info(f"Saved {len(data)} items to {output_path}")
 
-def prepare_training_data(data_dir: str = "./data/processed", output_dir: str = "./data"):
+def prepare_training_data(data_dir: str = "./data/processed", output_dir: str = "./data/processed"):
     """
     Prepare training data by splitting into train/valid/test sets and saving as JSONL.
     """
